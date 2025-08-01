@@ -12,7 +12,8 @@ An intelligent chatbot system using a **multi-agent LangGraph architecture**, co
 - LangGraph Agents (LangChain)
 - FAISS Vector Store
 - Wikipedia Tool via LangChain Tools
-- OpenAI/GROQ LLM
+- HuggingFace Embedding Technique
+- GROQ LLM
 - Streamlit (for UI)
 
 ## 🧩 Features
