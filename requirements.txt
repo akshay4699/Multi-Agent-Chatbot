@@ -3,7 +3,7 @@ langchain
 langchain-community 
 langchain-core 
 langchainhub 
-langgraph==0.0.45
+langgraph 
 langchain-groq 
 chromadb 
 huggingface-hub 
