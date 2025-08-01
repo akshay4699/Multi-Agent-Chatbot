@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 from huggingface_hub import login
-import cassio.config
+import cassio
 
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -34,10 +34,8 @@ with st.sidebar:
 
     if st.button("🚀 Initialize App"):
         login(token=hf_token)
-        cassio.config.configure(
-            token=astra_token,
-            database_id=astra_db_id
-        )
+        cassio.config.token = astra_token
+        cassio.config.database_id = astra_db_id
         st.session_state.initialized = True
         st.success("✅ Initialized successfully!")
 
@@ -74,7 +72,7 @@ vectorstore, loaded_texts = load_docs_and_store()
 retriever = vectorstore.as_retriever()
 
 # --- LLM for Routing and Answering ---
-llm = ChatGroq(model_name="llama-3.3-70b-versatile", groq_api_key=groq_api_key)
+llm = ChatGroq(model_name="llama3-70b-8192", groq_api_key=groq_api_key)
 
 class RouteQuery(BaseModel):
     datasource: Literal['vectorstore', 'wiki_search'] = Field(...)
