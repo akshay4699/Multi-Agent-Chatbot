@@ -5,6 +5,6 @@ langchain-groq
 langchain-huggingface
 langchain-community
 huggingface-hub
-cassio
+cassio==0.1.4
 pydantic
 cassandra-driver==3.27.0
