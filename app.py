@@ -1,24 +1,27 @@
 import streamlit as st
 import os
 from huggingface_hub import login
+
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import Chroma
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
-from langchain_huggingface import HuggingFaceEmbeddings
+
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.schema import Document
 from typing import List, Literal
 from langgraph.graph import StateGraph, END, START
+
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import WikipediaQueryRun
 from typing_extensions import TypedDict
 
 # --- UI Setup ---
 st.set_page_config(page_title="LangGraph RAG Router", layout="wide")
-st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace")
+st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace + ChromaDB")
 
 with st.sidebar:
     st.header("🔐 API Configuration")
@@ -51,7 +54,11 @@ def load_docs_and_store():
     texts = text_splitter.split_documents(doc_list)[:50]
 
     embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
-    vectorstore = FAISS.from_documents(texts, embeddings)
+    vectorstore = Chroma.from_documents(
+        documents=texts,
+        embedding=embeddings,
+        persist_directory="./chroma_db"
+    )
     return vectorstore, texts
 
 # Load vectorstore
@@ -59,7 +66,7 @@ vectorstore, loaded_texts = load_docs_and_store()
 retriever = vectorstore.as_retriever()
 
 # --- LLM for Routing and Answering ---
-llm = ChatGroq(model_name="llama-3-3b-8192", groq_api_key=groq_api_key)
+llm = ChatGroq(model_name="llama3-70b-8192", groq_api_key=groq_api_key)
 
 class RouteQuery(BaseModel):
     datasource: Literal['vectorstore', 'wiki_search'] = Field(...)
