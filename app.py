@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 from huggingface_hub import login
-import cassio
+import cassio.config
 
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -34,7 +34,10 @@ with st.sidebar:
 
     if st.button("🚀 Initialize App"):
         login(token=hf_token)
-        cassio.init(token=astra_token, database_id=astra_db_id)
+        cassio.config.configure(
+            token=astra_token,
+            database_id=astra_db_id
+        )
         st.session_state.initialized = True
         st.success("✅ Initialized successfully!")
 
