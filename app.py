@@ -2,12 +2,13 @@ import streamlit as st
 import os
 
 from huggingface_hub import login
-import cassio
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
 
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import Cassandra
+from langchain.vectorstores.cassandra import Cassandra
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 
 from langchain_groq import ChatGroq
@@ -23,18 +24,28 @@ from typing_extensions import TypedDict
 
 # --- UI Setup ---
 st.set_page_config(page_title="LangGraph RAG Router", layout="wide")
-st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace")
+st.title("\U0001F9E0 LangGraph - RAG Routing with Groq + HuggingFace")
 
 with st.sidebar:
-    st.header("🔐 API Configuration")
+    st.header("\U0001F512 API Configuration")
     groq_api_key = st.text_input("Groq API Key", type="password")
     hf_token = st.text_input("HuggingFace API Token", type="password")
-    astra_token = st.text_input("Astra DB App Token", type="password")
-    astra_db_id = st.text_input("Astra DB Database ID")
+    astra_db_id = st.text_input("Secure Bundle Path")
+    astra_db_username = st.text_input("DB Username")
+    astra_db_password = st.text_input("DB Password", type="password")
 
-    if st.button("🚀 Initialize App"):
+    if st.button("\U0001F680 Initialize App"):
         login(token=hf_token)
-        cassio.init(token=astra_token, database_id=astra_db_id)
+
+        cloud_config = {
+            'secure_connect_bundle': astra_db_id
+        }
+
+        auth_provider = PlainTextAuthProvider(astra_db_username, astra_db_password)
+        cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
+        session = cluster.connect()
+
+        st.session_state.db_session = session
         st.session_state.initialized = True
         st.success("✅ Initialized successfully!")
 
@@ -61,6 +72,8 @@ def load_docs_and_store():
     embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
     vectorstore = Cassandra(
         embedding=embeddings,
+        session=st.session_state.db_session,
+        keyspace="your_keyspace",
         table_name="multi_agent_demo"
     )
     vectorstore.add_documents(texts)
@@ -141,15 +154,15 @@ app = workflow.compile()
 
 # --- Run Query ---
 st.divider()
-st.subheader("🔍 Ask your Question")
+st.subheader("\U0001F50D Ask your Question")
 
 user_question = st.text_input("Type your question:")
 if st.button("Submit") and user_question:
     with st.spinner("Thinking..."):
         result = app.invoke({"question": user_question})
-        st.markdown("### 🤖 Answer")
+        st.markdown("### \U0001F916 Answer")
         st.write(result["generation"])
         st.markdown("---")
-        st.markdown("### 📄 Source Documents")
+        st.markdown("### \U0001F4C4 Source Documents")
         for doc in result["documents"]:
             st.write(doc.page_content[:500] + "...")
