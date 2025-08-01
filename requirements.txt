@@ -7,4 +7,4 @@ langchain-community
 huggingface-hub
 cassio
 pydantic
-cassandra-driver
+cassandra-driver==3.28.0
