@@ -1,0 +1,9 @@
+streamlit
+langchain
+langgraph
+langchain-groq
+langchain-huggingface
+langchain-community
+huggingface-hub
+cassio
+pydantic
