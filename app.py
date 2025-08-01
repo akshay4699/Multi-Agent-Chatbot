@@ -2,10 +2,9 @@ import streamlit as st
 import os
 
 from huggingface_hub import login
-
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 
@@ -22,7 +21,7 @@ from typing_extensions import TypedDict
 
 # --- UI Setup ---
 st.set_page_config(page_title="LangGraph RAG Router", layout="wide")
-st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace")
+st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace + Faiss")
 
 with st.sidebar:
     st.header("🔐 API Configuration")
@@ -34,7 +33,6 @@ with st.sidebar:
         st.session_state.initialized = True
         st.success("✅ Initialized successfully!")
 
-# --- Initialize once ---
 if "initialized" not in st.session_state:
     st.info("Please enter API keys in sidebar and click 'Initialize App'")
     st.stop()
@@ -54,9 +52,8 @@ def load_docs_and_store():
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(doc_list)[:50]
 
-    embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
-    vectorstore = FAISS.from_documents(texts, embeddings)
-
+    embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
+    vectorstore = FAISS.from_documents(texts, embedding=embeddings)
     return vectorstore, texts
 
 # Load vectorstore
@@ -64,7 +61,7 @@ vectorstore, loaded_texts = load_docs_and_store()
 retriever = vectorstore.as_retriever()
 
 # --- LLM for Routing and Answering ---
-llm = ChatGroq(model_name="llama3-8b-8192", groq_api_key=groq_api_key)
+llm = ChatGroq(model_name="mixtral-8x7b-32768", groq_api_key=groq_api_key)
 
 class RouteQuery(BaseModel):
     datasource: Literal['vectorstore', 'wiki_search'] = Field(...)
@@ -79,6 +76,7 @@ route_prompt = ChatPromptTemplate.from_messages([
     ("system", system),
     ("human", "{question}")
 ])
+
 structured_route_query = llm.with_structured_output(RouteQuery)
 question_router = route_prompt | structured_route_query
 
