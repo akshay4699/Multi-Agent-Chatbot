@@ -61,7 +61,7 @@ vectorstore, loaded_texts = load_docs_and_store()
 retriever = vectorstore.as_retriever()
 
 # --- LLM for Routing and Answering ---
-llm = ChatGroq(model_name="mixtral-8x7b-32768", groq_api_key=groq_api_key)
+llm = ChatGroq(model_name="llama-3.1-8b-instant", groq_api_key=groq_api_key)
 
 class RouteQuery(BaseModel):
     datasource: Literal['vectorstore', 'wiki_search'] = Field(...)
