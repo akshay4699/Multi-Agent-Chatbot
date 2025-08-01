@@ -7,5 +7,4 @@ langchain-community
 huggingface-hub
 cassio
 pydantic
-cassandra-driver==3.28.0
 asyncore
