@@ -1,11 +1,12 @@
 import streamlit as st
 import os
+
 from huggingface_hub import login
 
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 
 from langchain_groq import ChatGroq
@@ -21,7 +22,7 @@ from typing_extensions import TypedDict
 
 # --- UI Setup ---
 st.set_page_config(page_title="LangGraph RAG Router", layout="wide")
-st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace + ChromaDB")
+st.title("🧠 LangGraph - RAG Routing with Groq + HuggingFace")
 
 with st.sidebar:
     st.header("🔐 API Configuration")
@@ -54,11 +55,8 @@ def load_docs_and_store():
     texts = text_splitter.split_documents(doc_list)[:50]
 
     embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
-    vectorstore = Chroma.from_documents(
-        documents=texts,
-        embedding=embeddings,
-        persist_directory="./chroma_db"
-    )
+    vectorstore = FAISS.from_documents(texts, embeddings)
+
     return vectorstore, texts
 
 # Load vectorstore
@@ -66,7 +64,7 @@ vectorstore, loaded_texts = load_docs_and_store()
 retriever = vectorstore.as_retriever()
 
 # --- LLM for Routing and Answering ---
-llm = ChatGroq(model_name="llama3-70b-8192", groq_api_key=groq_api_key)
+llm = ChatGroq(model_name="llama-3-3-70b-instruct", groq_api_key=groq_api_key)
 
 class RouteQuery(BaseModel):
     datasource: Literal['vectorstore', 'wiki_search'] = Field(...)
