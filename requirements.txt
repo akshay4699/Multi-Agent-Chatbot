@@ -8,3 +8,5 @@ huggingface-hub
 cassio 
 pydantic
 python-dotenv
+cassandra-driver==3.27.0
+
