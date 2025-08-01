@@ -13,3 +13,4 @@ python-dotenv
 tiktoken 
 typing-extensions 
 bs4
+sqlite3 >= 3.35.0
