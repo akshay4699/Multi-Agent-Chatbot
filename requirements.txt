@@ -1,10 +1,12 @@
+python-dotenv
 streamlit
+huggingface_hub
 langchain
+langchain-community
+langchain-core
 langgraph
 langchain-groq
 langchain-huggingface
-langchain-community
-huggingface-hub
 cassio==0.1.4
-pydantic
-cassandra-driver==3.27.0
+cassandra-driver==3.25.0
+typing-extensions
