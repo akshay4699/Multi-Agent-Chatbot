@@ -7,6 +7,6 @@ langchain-core
 langgraph
 langchain-groq
 langchain-huggingface
-cassio==0.1.4
-cassandra-driver==3.25.0
+cassio 
+cassandra-driver 
 typing-extensions
