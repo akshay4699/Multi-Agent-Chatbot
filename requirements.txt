@@ -7,3 +7,4 @@ langchain-community
 huggingface-hub
 cassio
 pydantic
+cassandra-driver
