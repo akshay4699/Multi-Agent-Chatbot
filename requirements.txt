@@ -9,3 +9,4 @@ huggingface-hub
 faiss-cpu
 torch
 sentence-transformers
+wikipedia
