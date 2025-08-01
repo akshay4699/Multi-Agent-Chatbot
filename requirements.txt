@@ -1,12 +1,10 @@
-python-dotenv
 streamlit
-huggingface_hub
 langchain
-langchain-community
-langchain-core
 langgraph
 langchain-groq
 langchain-huggingface
+langchain-community
+huggingface-hub
 cassio 
-cassandra-driver 
-typing-extensions
+pydantic
+python-dotenv
